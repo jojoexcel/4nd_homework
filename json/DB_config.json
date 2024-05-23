@@ -1,0 +1,43 @@
+{
+    "dp_name": "library.db",
+    "tables": [
+        {
+            "table_name": "users",
+            "create_table": "CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, password TEXT NOT NULL)",
+            "select_columns": [
+                "user_id",
+                "username",
+                "password"
+            ],
+            "insert_columns": [
+                "username",
+                "password"
+            ],
+            "update_columns": [
+                "password"
+            ]
+        },
+        {
+            "table_name": "books",
+            "create_table": "CREATE TABLE IF NOT EXISTS books (book_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, author TEXT NOT NULL, publisher TEXT NOT NULL, year INTEGER NOT NULL)",
+            "select_columns": [
+                "book_id",
+                "title",
+                "author",
+                "publisher",
+                "year"
+            ],
+            "insert_columns": [
+                "title",
+                "author",
+                "publisher",
+                "year"
+            ],
+            "update_columns": [
+                "author",
+                "publisher",
+                "year"
+            ]
+        }
+    ]
+}
