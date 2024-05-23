@@ -1,0 +1,73 @@
+{
+    "editor.formatOnType": true,
+    "editor.mouseWheelZoom": true, // 視窗縮放
+    "editor.fontSize": 15,
+    "editor.unicodeHighlight.nonBasicASCII": false,
+    "editor.minimap.enabled": false,
+    "editor.formatOnSave": true,
+    "editor.accessibilitySupport": "off",
+    "editor.guides.indentation": true,
+    "files.encoding": "utf8",
+    "files.autoSave": "onFocusChange", // 失焦自動儲存
+    "files.trimTrailingWhitespace": true, // 儲存的時候，會幫你自動過濾多餘的空格
+    "files.autoGuessEncoding": true,
+    "workbench.colorTheme": "One Dark Pro Darker",
+    "workbench.editor.highlightModifiedTabs": true,
+    "workbench.colorCustomizations": {
+      // 層級括號顏色，從 1 至 6 層，此處只設定了 5 層
+      "editorBracketHighlight.foreground1": "#7777ff",
+      "editorBracketHighlight.foreground2": "#8a2be2",
+      "editorBracketHighlight.foreground3": "#DC143C",
+      "editorBracketHighlight.foreground4": "#5eaaa8",
+      "editorBracketHighlight.foreground5": "#800080",
+      // 異常括號的顏色，比如多出來的結尾括號
+      "editorBracketHighlight.unexpectedBracket.foreground": "#ffffff"
+    },
+
+    "window.zoomLevel": 2, // 視窗縮放程度
+    "[bat]": {
+      "files.encoding": "cp950"
+    },
+
+    "black-formatter.args": ["--line-length=100", "--skip-string-normalization"],
+    "flake8.args": ["--max-line-length=100", "--ignore=E131,E302"],
+    "isort.args": ["--src=${workspaceFolder}", "--line-length=100"],
+    "isort.check": true,
+    // "terminal.integrated.defaultProfile.windows": "Command Prompt",
+    "terminal.integrated.defaultProfile.windows": "Cmder",
+    "terminal.integrated.profiles.windows": {
+      "Cmder": {
+        "name": "Cmder",
+        "path": [
+          "${env:windir}\\Sysnative\\cmd.exe",
+          "${env:windir}\\System32\\cmd.exe"
+        ],
+        "args": ["/k", "${env:cmder_root}\\vendor\\bin\\vscode_init.cmd"],
+        "icon": "terminal-cmd",
+        "color": "terminal.ansiGreen"
+      }
+    },
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.black-formatter",
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+      }
+    },
+    "[jsonc]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[css]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode" // 替換成你的 CSS 格式化器
+    },
+    "[html]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode" // 替換成你的 HTML 格式化器
+    },
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode" // 替換成你的 JavaScript 格式化器
+    },
+    "[json]": {
+      "editor.defaultFormatter": "vscode.json-language-features" // 替換成你的 JSON 格式化器
+    },
+    "workbench.editor.enablePreview": false
+  }
