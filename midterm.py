@@ -38,18 +38,26 @@ while attempts < max_attempts:
             table_name = 'books'
 
             if choice == "1":
-
-                lib.insert_user(table_name, data, config)
+                table_name="books"
+                fun_json="insert_columns"
+                lib.data_insert(table_name, config, fun_json)
             elif choice == "2":
-                lib.delete_record()
+                lib.select_books_all()
+                table_name="books"
+                fun_json="primary_key"
+                lib.data_delete(table_name, config, fun_json)
             elif choice == "3":
-                lib.modify_record()
+                lib.select_books_all()
+                table_name="books"
+                fun_json="update_columns"
+                lib.data_update(table_name, config, fun_json)
             elif choice == "4":
                 table_name="books"
                 fun_json="select_columns"
                 lib.select_books_like_title_or_author(db_path, table_name, config, fun_json)
             elif choice == "5":
                 lib.select_books_all()
+                lib.display_menu()
             elif choice == "":
                 print("程式結束")
                 break

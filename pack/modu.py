@@ -85,40 +85,135 @@ def insert_data(table_name, data, config):
     except sqlite3.Error as error:
         print(f"新增数据时发生错误：{error}")
 
-def insert_user(table_name, data, config):
+def data_insert(table_name, config, fun_json):
     '''插入單一資料'''
-    dp_name = config.get("dp_name", "library.db")  # 使用配置文件中的数据库名称
-
+    dp_name = config.get("dp_name", "library.db")
     table_config = next((table for table in config["tables"] if table["table_name"] == table_name), None)
     if not table_config:
         raise ValueError(f"表 {table_name} 在配置文件中未找到")
+    # columns = [col["name"] for col in table_config[fun_json]]  只有SELECT_
+    columns = table_config[fun_json]
+    columns_str = ', '.join(columns)
+    # columns_name_tw = [col["description"] for col in table_config[fun_json]]  # 取得中文提示
+    columns_name_tw = [next(col["description"] for col in table_config["columns_set"] if col["name"] == column) for column in columns]
 
-    columns = table_config["insert_columns"]
     primary_key = table_config.get("primary_key", [])
     placeholders = ', '.join(['?'] * len(columns))
-    columns_str = ', '.join(columns)
+
 
     sql = f"INSERT INTO {table_name} ({columns_str}) VALUES ({placeholders})"
 
-    values = [data[col] for col in columns]
+    values = []
+    for i, col in enumerate(columns):
+        value = input(f'請輸入{columns_name_tw[i]}：').strip()
+        if not value:
+            print(f'{columns_name_tw[i]}不能為空白，請重新輸入')
+            return
+        values.append(value)
 
     try:
         with sqlite3.connect(dp_name) as conn:
             cursor = conn.cursor()
             # 检查主键是否存在
             if primary_key:
-                pk_values = [data[pk] for pk in primary_key]
+                pk_values = [values[columns.index(pk)] for pk in primary_key]
                 pk_conditions = ' AND '.join([f"{pk} = ?" for pk in primary_key])
                 cursor.execute(f"SELECT 1 FROM {table_name} WHERE {pk_conditions}", pk_values)
                 if cursor.fetchone():
-                   hi = f"{table_name}新增失敗,\n欄位:{primary_key} \n資料:{pk_values}\n重複了"
-                   print(f"{hi:<10}")
-                   return
+                    print(f"新增失敗，資料已存在")
+                    return
 
             cursor.execute(sql, values)
             conn.commit()
+            select_books_all()
+            display_menu()
+            print("新增成功")
     except sqlite3.Error as error:
         print(f"新增 {table_name} 作業發生错误：{error}")
+
+def date_update_chack_name(book_name, config, table_name):
+    dp_name = config.get("dp_name", "library.db")
+    # table_name = "books"
+    try:
+        with sqlite3.connect(dp_name) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT title FROM {table_name} WHERE title = ?", (book_name,))
+            result = cursor.fetchone()
+            if result:
+                return True
+            else:
+                return False
+    except sqlite3.Error as error:
+        print(f"查詢書名時發生錯誤：{error}")
+        return False
+
+
+
+
+def data_update(table_name, config, fun_json):
+    dp_name = config.get("dp_name", "library.db")
+    table_config = next((table for table in config["tables"] if table["table_name"] == table_name), None)
+    if not table_config:
+        raise ValueError(f"表 {table_name} 在配置文件中未找到")
+
+    update_columns = table_config.get(fun_json, [])
+    columns_set = table_config.get("columns_set", [])
+
+    book_name = input('請輸入書名：').strip()
+    if not date_update_chack_name(book_name, config, table_name):
+        print(f"書名 '{book_name}' 不存在")
+        return
+
+    set_clause = ', '.join([f"{col} = ?" for col in update_columns])
+    update_values = []
+
+    for col in update_columns:
+        col_description = next((c["description"] for c in columns_set if c["name"] == col), col)
+        col_value = input(f'請輸入 {col_description}：').strip()
+        if not col_value:
+            print(f'{col_description} 不能為空白，請重新輸入')
+            return
+        update_values.append(col_value)
+
+    try:
+        with sqlite3.connect(dp_name) as conn:
+            cursor = conn.cursor()
+            sql = f"UPDATE {table_name} SET {set_clause} WHERE title = ?"
+            cursor.execute(sql, update_values + [book_name])
+            conn.commit()
+            clear_screen()
+            select_books_all()
+            display_menu()
+            print("更新成功")
+    except sqlite3.Error as error:
+        print(f"更新 {table_name} 作業發生錯誤：{error}")
+
+def data_delete(table_name, config, fun_json):
+    dp_name = config.get("dp_name", "library.db")
+    table_config = next((table for table in config["tables"] if table["table_name"] == table_name), None)
+    if not table_config:
+        raise ValueError(f"表 {table_name} 在配置文件中未找到")
+
+    book_name = input('請輸入書名：').strip()
+    if not date_update_chack_name(book_name, config, table_name):
+        print(f"書名 '{book_name}' 不存在")
+        return
+
+    try:
+        with sqlite3.connect(dp_name) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"DELETE FROM {table_name} WHERE title = ?", (book_name,))
+            conn.commit()
+            clear_screen()
+            select_books_all()
+            display_menu()
+            print("刪除成功")
+    except sqlite3.Error as error:
+        print(f"刪除 {table_name} 作業發生錯誤：{error}")
+
+
+
+
 
 def date_load(table_name, config, fun_json):
     dp_name = config.get("dp_name", "library.db")
@@ -126,7 +221,12 @@ def date_load(table_name, config, fun_json):
     if not table_config:
         raise ValueError(f"表 {table_name} 在配置文件中未找到")
 
-    columns = [col["name"] for col in table_config[fun_json]]
+    # columns = [col["name"] for col in table_config[fun_json]]
+    columns = table_config[fun_json]
+    columns_str = ', '.join(columns)
+    # columns_name_tw = [col["description"] for col in table_config[fun_json]]  # 取得中文提示
+    columns_name_tw = [next(col["description"] for col in table_config["columns_set"] if col["name"] == column) for column in columns]
+
     # columns_h=[col["description"] for col in table_config[fun_json]]
     # columns_w=[col["with"] for col in table_config[fun_json]]
     columns_str = ', '.join(columns)
@@ -139,19 +239,20 @@ def date_load(table_name, config, fun_json):
             all_data = cursor.fetchall()
             clear_screen()
             print_records(all_data, columns, table_config ,fun_json)
-            display_menu()
+
     except sqlite3.Error as error:
         print(f" 作業發生错误：{error}")
 
 def print_records(all_data, columns, table_config, fun_json):
     if all_data:
-        header = "| " + " | ".join(f'{col["description"]:{chr(12288)}^{col["width"]}}' for col in table_config[fun_json]) + " |"
+
+        header = "| " + " | ".join(f'{col["description"]:{chr(12288)}^{col["width"]}}' for col in table_config["columns_set"]) + " |"
         # print("-" * len(header))
         print(header)
         # print("-" * len(header))
         for row in all_data:
             if len(row) == len(columns):
-                formatted_row = "| " + " | ".join(f'{str(col):{chr(12288)}^{col_settings["width"]}}' for col, col_settings in zip(row, table_config[fun_json])) + " |"
+                formatted_row = "| " + " | ".join(f'{str(col):{chr(12288)}^{col_settings["width"]}}' for col, col_settings in zip(row, table_config["columns_set"])) + " |"
                 print(formatted_row)
             else:
                 print("資料欄位數量與設定不符")
@@ -185,10 +286,12 @@ def check_user():
         print(f"查詢作業發生錯誤：{error}")
 
 def select_books_like_title_or_author(dp_name, table_name, config, fun_json):
+    dp_name = config.get("dp_name", "library.db")
     table_config = next((table for table in config["tables"] if table["table_name"] == table_name), None)
     if not table_config:
         raise ValueError(f"表 {table_name} 在配置文件中未找到")
-    columns = [col["name"] for col in table_config[fun_json]]
+    # columns = [col["name"] for col in table_config[fun_json]]
+    columns = table_config[fun_json]
     columns_str = ', '.join(columns)
     columns_where = table_config["select_where_columns"]
     columns_where_str = ' OR '.join(f"{col} LIKE ?" for col in columns_where)
@@ -223,10 +326,13 @@ def display_menu():
     print(f"{'5. 資料清單':{chr(12288)}^12}")
     print(f"{'-'*19}")
 
+
+
 def select_books_all():
     DB_config_file = r'.\json\db_config.json'
     config = config_load(DB_config_file)
     table="books"
     fun_json="select_columns"
     date_load(table, config, fun_json)
+
 

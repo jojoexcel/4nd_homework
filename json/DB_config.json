@@ -5,7 +5,7 @@
             "table_name": "users",
             "description": "用戶資訊表",
             "create_table": "CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, password TEXT NOT NULL)",
-            "select_columns": [
+            "columns_set": [
                 {
                     "name": "user_id",
                     "description": "使用者ID",
@@ -22,6 +22,10 @@
                     "width": 12
                 }
             ],
+            "select_columns": [
+                "username",
+                "password"
+            ],
             "select_where_columns": [
                 "username"
             ],
@@ -30,6 +34,7 @@
                 "password"
             ],
             "update_columns": [
+                "username",
                 "password"
             ],
             "primary_key": [
@@ -40,7 +45,7 @@
             "table_name": "books",
             "description": "書籍資訊表",
             "create_table": "CREATE TABLE IF NOT EXISTS books (book_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, author TEXT NOT NULL, publisher TEXT NOT NULL, year INTEGER NOT NULL)",
-            "select_columns": [
+            "columns_set": [
                 {
                     "name": "book_id",
                     "description": "書籍ID",
@@ -67,6 +72,12 @@
                     "width": 6
                 }
             ],
+            "select_columns": [
+                "title",
+                "author",
+                "publisher",
+                "year"
+            ],
             "select_where_columns": [
                 "title",
                 "author"
@@ -78,6 +89,7 @@
                 "year"
             ],
             "update_columns": [
+                "title",
                 "author",
                 "publisher",
                 "year"
