@@ -3,11 +3,27 @@
     "tables": [
         {
             "table_name": "users",
+            "description": "用戶資訊表",
             "create_table": "CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, password TEXT NOT NULL)",
             "select_columns": [
-                "user_id",
-                "username",
-                "password"
+                {
+                    "name": "user_id",
+                    "description": "使用者ID",
+                    "width": 4
+                },
+                {
+                    "name": "username",
+                    "description": "姓名",
+                    "width": 12
+                },
+                {
+                    "name": "password",
+                    "description": "密碼",
+                    "width": 12
+                }
+            ],
+            "select_where_columns": [
+                "username"
             ],
             "insert_columns": [
                 "username",
@@ -22,13 +38,38 @@
         },
         {
             "table_name": "books",
+            "description": "書籍資訊表",
             "create_table": "CREATE TABLE IF NOT EXISTS books (book_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, author TEXT NOT NULL, publisher TEXT NOT NULL, year INTEGER NOT NULL)",
             "select_columns": [
-                "book_id",
+                {
+                    "name": "book_id",
+                    "description": "書籍ID",
+                    "width": 4
+                },
+                {
+                    "name": "title",
+                    "description": "書名",
+                    "width": 12
+                },
+                {
+                    "name": "author",
+                    "description": "作者",
+                    "width": 12
+                },
+                {
+                    "name": "publisher",
+                    "description": "出版社",
+                    "width": 12
+                },
+                {
+                    "name": "year",
+                    "description": "年份",
+                    "width": 6
+                }
+            ],
+            "select_where_columns": [
                 "title",
-                "author",
-                "publisher",
-                "year"
+                "author"
             ],
             "insert_columns": [
                 "title",

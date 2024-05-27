@@ -1,0 +1,77 @@
+import json
+import sqlite3
+
+def config_load(config_file):
+    with open(config_file, 'r', encoding='utf-8') as file:
+        config = json.load(file)
+    return config
+
+def create_tables(config):
+    dp_name = config["dp_name"]
+    try:
+        with sqlite3.connect(dp_name) as conn:
+            cursor = conn.cursor()
+            for table in config["tables"]:
+                cursor.execute(table["create_table"])
+            print("所有表格創建成功")
+    except sqlite3.Error as error:
+        print(f"創建表格時發生錯誤：{error}")
+
+def insert_data(table_name, data, config):
+    dp_name = config["dp_name"]
+    table_config = next((table for table in config["tables"] if table["table_name"] == table_name), None)
+    if not table_config:
+        raise ValueError(f"表 {table_name} 在配置文件中未找到")
+
+    columns = [col["name"] for col in table_config["insert_columns"]]
+    columns_str = ', '.join(columns)
+    placeholders = ', '.join(['?' for _ in columns])
+    sql = f"INSERT INTO {table_name} ({columns_str}) VALUES ({placeholders})"
+
+    try:
+        with sqlite3.connect(dp_name) as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql, data)
+            conn.commit()
+            print("資料插入成功")
+    except sqlite3.Error as error:
+        print(f"插入資料時發生錯誤：{error}")
+
+def date_load(table_name, config):
+    dp_name = config.get("dp_name", "library.db")
+    table_config = next((table for table in config["tables"] if table["table_name"] == table_name), None)
+    if not table_config:
+        raise ValueError(f"表 {table_name} 在配置文件中未找到")
+
+    columns = [col["name"] for col in table_config["select_columns"]]
+    columns_str = ', '.join(columns)
+    sql = f"SELECT {columns_str} FROM {table_name}"
+
+    try:
+        with sqlite3.connect(dp_name) as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql)
+            all_data = cursor.fetchall()
+            print_records(all_data, table_config["select_columns"])
+    except sqlite3.Error as error:
+        print(f" 查詢資料時發生錯誤：{error}")
+
+def print_records(records, column_settings):
+    if records:
+        header = "| " + " | ".join(f'{col["description"]:{chr(12288)}^{col["width"]}}' for col in column_settings) + " |"
+        print("-" * len(header))
+        print(header)
+        print("-" * len(header))
+        for row in records:
+            formatted_row = "| " + " | ".join(f'{str(row[i]):{chr(12288)}^{col["width"]}}' for i, col in enumerate(column_settings)) + " |"
+            print(formatted_row)
+        print("-" * len(header))
+    else:
+        print("無相符記錄")
+
+# 使用範例
+DB_config_file = r'.\json\db_config.json'
+config = config_load(DB_config_file)
+create_tables(config)
+insert_data("books", ("書名A", "作者A", "出版社A", 2020), config)
+date_load("books", config)

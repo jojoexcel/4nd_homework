@@ -1,0 +1,25 @@
+import sqlite3
+import pack.modu as lib
+
+
+table_name='books'
+DB_config_file=r'.\json\db_config.json'
+config = lib.config_load(DB_config_file)
+dp_name = config.get("dp_name", "library.db")
+table_config = next((table for table in config["tables"] if table["table_name"] == table_name), None)
+if not table_config:
+    raise ValueError(f"表 {table_name} 在配置文件中未找到")
+columns = table_config["select_columns"]
+columns_str = ', '.join(columns)
+sql = f"SELECT {columns_str} FROM {table_name} "
+try:
+        # 連接數據庫
+        with sqlite3.connect('library.db') as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql)
+            row = cursor.fetchall()
+            print(row)
+except sqlite3.Error as error:
+            print(f"作業發生錯誤：{error}")
+            print(columns)
+

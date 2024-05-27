@@ -106,7 +106,7 @@ def insert_user(table_name, data, config):
     columns_str = ', '.join(columns)
 
     sql = f"INSERT INTO {table_name} ({columns_str}) VALUES ({placeholders})"
-
+    # 設定要寫入的欄位值  代入新增SQL
     values = [data[col] for col in columns]
 
     try:

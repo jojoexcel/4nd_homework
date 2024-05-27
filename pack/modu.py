@@ -3,11 +3,14 @@ import sqlite3
 import json
 import pandas as pd
 
+
 def config_load(config_file):
     '''加载 JSON 配置文件'''
     with open(config_file, 'r', encoding='utf-8') as file:
         config = json.load(file)
     return config
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 def create_table(conn, create_table_sql):
     '''创建表格'''
@@ -19,9 +22,8 @@ def create_table(conn, create_table_sql):
 
 def create_db(config):
     '''根据 JSON 配置文件創建資料表'''
-    dp_name = config.get("dp_name", library.db)
+    dp_name = config.get("dp_name", "library.db")
     tables = config.get("tables", [])
-
     conn = sqlite3.connect(dp_name)
     for table_config in tables:
         create_table(conn, table_config['create_table'])
@@ -47,6 +49,7 @@ def insert_users_from_file(file, table_name, config):
 
     data = df.to_dict(orient='records')
     insert_data(table_name, data, config)
+
 
 def insert_data(table_name, data, config):
     '''批量插入数据'''
@@ -117,37 +120,113 @@ def insert_user(table_name, data, config):
     except sqlite3.Error as error:
         print(f"新增 {table_name} 作業發生错误：{error}")
 
-def date_load(table_name, config):
-
+def date_load(table_name, config, fun_json):
     dp_name = config.get("dp_name", "library.db")
     table_config = next((table for table in config["tables"] if table["table_name"] == table_name), None)
     if not table_config:
         raise ValueError(f"表 {table_name} 在配置文件中未找到")
 
-    columns = table_config["select_columns"]
+    columns = [col["name"] for col in table_config[fun_json]]
+    # columns_h=[col["description"] for col in table_config[fun_json]]
+    # columns_w=[col["with"] for col in table_config[fun_json]]
     columns_str = ', '.join(columns)
-    sql = f"select ({columns_str}) from {table_name}"
+    sql = f"SELECT {columns_str} FROM {table_name} "
 
     try:
         with sqlite3.connect(dp_name) as conn:
             cursor = conn.cursor()
             cursor.execute(sql)
-            rows = cursor.fetchall()
-            # 列印查詢結果的標題
-            print("查詢結果：")
-            header = "| " + " | ".join(columns) + " |"
-            print("-" * len(header))
-            print(header)
-            print("-" * len(header))
-            # 列印查詢結果的數據
-            for row in rows:
-                row_str = "| " + " | ".join(str(col) for col in row) + " |"
-                print(row_str)
-
-            print("-" * len(header))
-          # cursor.execute(f"SELECT 1 FROM {table_name} WHERE {pk_conditions}", pk_values)
+            all_data = cursor.fetchall()
+            clear_screen()
+            print_records(all_data, columns, table_config ,fun_json)
+            display_menu()
     except sqlite3.Error as error:
         print(f" 作業發生错误：{error}")
 
+def print_records(all_data, columns, table_config, fun_json):
+    if all_data:
+        header = "| " + " | ".join(f'{col["description"]:{chr(12288)}^{col["width"]}}' for col in table_config[fun_json]) + " |"
+        # print("-" * len(header))
+        print(header)
+        # print("-" * len(header))
+        for row in all_data:
+            if len(row) == len(columns):
+                formatted_row = "| " + " | ".join(f'{str(col):{chr(12288)}^{col_settings["width"]}}' for col, col_settings in zip(row, table_config[fun_json])) + " |"
+                print(formatted_row)
+            else:
+                print("資料欄位數量與設定不符")
+        # print("-" * len(header))
+    else:
+        print("無相符記錄")
 
+def check_user():
+    dp_name = 'library.db'
+    table_name = "users"
+
+    try:
+        username = input('請輸入帳號：')
+        password = input('請輸入密碼：')
+
+        with sqlite3.connect(dp_name) as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT password FROM {table_name} WHERE username = ?", (username,))
+            result = cursor.fetchone()
+
+            if result:
+                stored_password = result[0]
+                if password == stored_password:
+                    return "登入成功"
+                else:
+                    return "密碼錯誤"
+            else:
+                return "用戶不存在！"
+
+    except sqlite3.Error as error:
+        print(f"查詢作業發生錯誤：{error}")
+
+def select_books_like_title_or_author(dp_name, table_name, config, fun_json):
+    table_config = next((table for table in config["tables"] if table["table_name"] == table_name), None)
+    if not table_config:
+        raise ValueError(f"表 {table_name} 在配置文件中未找到")
+    columns = [col["name"] for col in table_config[fun_json]]
+    columns_str = ', '.join(columns)
+    columns_where = table_config["select_where_columns"]
+    columns_where_str = ' OR '.join(f"{col} LIKE ?" for col in columns_where)
+
+    try:
+        keyword = input('請輸入書名或作者關鍵字:')
+
+        with sqlite3.connect(dp_name) as conn:
+            cursor = conn.cursor()
+            sql = f"SELECT {columns_str} FROM {table_name} WHERE {columns_where_str}"
+            cursor.execute(sql, ('%'+keyword+'%', '%'+keyword+'%'))
+            all_data = cursor.fetchall()
+
+            if all_data:
+                clear_screen()
+                print_records(all_data, columns, table_config ,fun_json)
+                display_menu()
+            else:
+                print("無相符記錄")
+    except sqlite3.Error as error:
+        print(f"查詢作業發生錯誤：{error}")
+
+def display_menu():
+    print("")
+    print(f"{'-'*19}")
+    print(f"{'資料表 CRUD':{chr(12288)}^12}")
+    print(f"{'-'*19}")
+    print(f"{'1. 增加記錄':{chr(12288)}^12}")
+    print(f"{'2. 刪除記錄':{chr(12288)}^12}")
+    print(f"{'3. 修改記錄':{chr(12288)}^12}")
+    print(f"{'4. 查詢記錄':{chr(12288)}^12}")
+    print(f"{'5. 資料清單':{chr(12288)}^12}")
+    print(f"{'-'*19}")
+
+def select_books_all():
+    DB_config_file = r'.\json\db_config.json'
+    config = config_load(DB_config_file)
+    table="books"
+    fun_json="select_columns"
+    date_load(table, config, fun_json)
 
