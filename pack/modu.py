@@ -185,9 +185,10 @@ def data_insert(table_name: str, config: dict, fun_json: str):
                     return False
 
             cursor.execute(sql, values)
+            cursor_ros=cursor.rowcount
             conn.commit()
-            select_books_all()
-            return True
+            # select_books_all()
+            return cursor_ros
             # display_menu()
 
     except sqlite3.Error as error:
@@ -243,8 +244,9 @@ def data_update(table_name: str, config: dict, fun_json: str):
             cursor = conn.cursor()
             sql = f"UPDATE {table_name} SET {set_clause} WHERE title = ?"
             cursor.execute(sql, update_values + [book_name])
+            cursor_ros=cursor.rowcount
             conn.commit()
-            return True
+            return cursor_ros
             # clear_screen()
             # display_menu()
             # print(f"更新{update_values}成功")
@@ -268,8 +270,9 @@ def data_delete(table_name: str, config: dict, fun_json: str):
             cursor = conn.cursor()
             sql = f"DELETE FROM {table_name} WHERE title = ?"
             cursor.execute(sql, (book_name,))
+            cursor_ros=cursor.rowcount
             conn.commit()
-            return True
+            return cursor_ros
             # clear_screen()
             # display_menu()
             # print(f"書名 '{book_name}' 的記錄已刪除")
@@ -330,8 +333,9 @@ def print_records(all_data, columns_name_tw, table_config, columns):
     """
     if all_data:
         # 打印表頭
-        header = "| " + " | ".join(pad_to_width(col, col_with["width"]) for col, col_with in zip(columns_name_tw, table_config["columns_set"])) + " |"
-        print(header)
+        # header = "| " + " | ".join(pad_to_width(col, col_with["width"]) for col, col_with in zip(columns_name_tw, table_config["columns_set"])) + " |"
+        # print(header)
+        print(f"|{'書名':{chr(12288)}^7}|{'作者':{chr(12288)}^7}|{'出版社':{chr(12288)}^10}|{'年份':^4}|")
         # # 打印分隔線
         # separator = "|-" + "-|-".join("-" * col_with["width"] for col, col_with in zip(columns_name_tw, table_config["columns_set"])) + " |"
         # 打印每一行數據
@@ -345,6 +349,7 @@ def print_records(all_data, columns_name_tw, table_config, columns):
 
     else:
         print("無相符記錄")
+
 
 def check_user() -> str:
     """檢查用戶

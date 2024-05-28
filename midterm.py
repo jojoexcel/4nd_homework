@@ -23,9 +23,7 @@ while attempts < max_attempts:
     ck = lib.check_user()
     if ck == "密碼錯誤" or ck == "用戶不存在！":
         attempts += 1
-        if attempts < max_attempts:
-            print("重新輸入")
-        else:
+        if not attempts < max_attempts:
             print("錯誤次數過多，系統結束。")
             break
     else:
@@ -41,21 +39,24 @@ while attempts < max_attempts:
                 fun_json = "insert_columns"
                 ckrun = lib.data_insert(table_name, config, fun_json)
                 if 'ckrun' in locals() and ckrun:
-                    print(f"異動 {choice} 記錄")
+                    print(f"異動 {ckrun} 記錄")
+                lib.select_books_all()
             elif choice == "2":
                 lib.select_books_all()
                 table_name = "books"
                 fun_json = "primary_key"
                 ckrun = lib.data_delete(table_name, config, fun_json)
                 if 'ckrun' in locals() and ckrun:
-                    print(f"異動 {choice} 記錄")
+                    print(f"異動 {ckrun} 記錄")
+                lib.select_books_all()
             elif choice == "3":
                 lib.select_books_all()
                 table_name = "books"
                 fun_json = "update_columns"
                 ckrun = lib.data_update(table_name, config, fun_json)
                 if 'ckrun' in locals() and ckrun:
-                    print(f"異動 {choice} 記錄")
+                    print(f"異動 {ckrun} 記錄")
+                lib.select_books_all()
             elif choice == "4":
                 table_name = "books"
                 fun_json = "select_columns"
