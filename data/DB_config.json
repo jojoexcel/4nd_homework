@@ -5,7 +5,7 @@
             "table_name": "users",
             "description": "用戶資訊表",
             "create_table": "CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, password TEXT NOT NULL)",
-            "columns_set": [
+            "columns": [
                 {
                     "name": "user_id",
                     "description": "使用者ID",
@@ -26,9 +26,6 @@
                 "username",
                 "password"
             ],
-            "select_where_columns": [
-                "username"
-            ],
             "insert_columns": [
                 "username",
                 "password"
@@ -45,40 +42,35 @@
             "table_name": "books",
             "description": "書籍資訊表",
             "create_table": "CREATE TABLE IF NOT EXISTS books (book_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, author TEXT NOT NULL, publisher TEXT NOT NULL, year INTEGER NOT NULL)",
-            "columns_set": [
+            "columns": [
                 {
                     "name": "title",
                     "description": "書名",
-                    "why": "請輸入要新增的書名",
-                    "width": 12,
-                    "width2": 12
+                    "prompt": "請輸入要新增的標題",
+                    "width": 12
                 },
                 {
                     "name": "author",
                     "description": "作者",
-                    "why": "請輸入要新增的作者",
-                    "width": 12,
-                    "width2": 12
+                    "prompt": "請輸入要新增的作者",
+                    "width": 12
                 },
                 {
                     "name": "publisher",
                     "description": "出版社",
-                    "why": "請輸入要新增的出版社",
-                    "width": 18,
-                    "width2": 18
+                    "prompt": "請輸入要新增的出版社",
+                    "width": 18
                 },
                 {
                     "name": "year",
                     "description": "年份",
-                    "why": "請輸入要新增的年份",
-                    "width": 4,
-                    "width2": 4
+                    "prompt": "請輸入要新增的年份",
+                    "width": 4
                 },
                 {
                     "name": "book_id",
                     "description": "書籍ID",
-                    "width": 4,
-                    "width2": 4
+                    "width": 4
                 }
             ],
             "select_columns": [
@@ -86,10 +78,6 @@
                 "author",
                 "publisher",
                 "year"
-            ],
-            "select_where_columns": [
-                "title",
-                "author"
             ],
             "insert_columns": [
                 "title",

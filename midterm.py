@@ -67,6 +67,4 @@ while attempts < max_attempts:
                 break
             else:
                 print("=>無效的選擇")
-
-            # lib.clear_screen()  # 清理屏幕（如果需要）
         break
