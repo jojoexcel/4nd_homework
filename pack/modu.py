@@ -336,8 +336,9 @@ def print_records(all_data, columns_name_tw, table_config, columns):
         # header = "| " + " | ".join(pad_to_width(col, col_with["width"]) for col, col_with in zip(columns_name_tw, table_config["columns_set"])) + " |"
         # print(header)
         print(f"|{'書名':{chr(12288)}^7}|{'作者':{chr(12288)}^7}|{'出版社':{chr(12288)}^10}|{'年份':^4}|")
-        # # 打印分隔線
+        # # 打印分隔線--加這個不錯看
         # separator = "|-" + "-|-".join("-" * col_with["width"] for col, col_with in zip(columns_name_tw, table_config["columns_set"])) + " |"
+        # print(separator)
         # 打印每一行數據
         for row in all_data:
             if len(row) == len(columns):
