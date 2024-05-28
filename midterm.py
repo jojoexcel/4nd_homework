@@ -30,27 +30,32 @@ while attempts < max_attempts:
             break
     else:
         print(ck)
-        lib.display_menu()  # 显示菜单
-        while True:
-            # lib.clear_screen()  # 清理屏幕
 
+        while True:
+            # lib.clear_screen()  # 清理屏幕（如果需要）
+            lib.display_menu()  # 顯示菜單
             choice = input("選擇要執行的功能(Enter離開)：")
 
-            table_name = 'books'
             if choice == "1":
                 table_name = "books"
                 fun_json = "insert_columns"
-                lib.data_insert(table_name, config, fun_json)
+                ckrun = lib.data_insert(table_name, config, fun_json)
+                if 'ckrun' in locals() and ckrun:
+                    print(f"異動 {choice} 記錄")
             elif choice == "2":
                 lib.select_books_all()
                 table_name = "books"
                 fun_json = "primary_key"
-                lib.data_delete(table_name, config, fun_json)
+                ckrun = lib.data_delete(table_name, config, fun_json)
+                if 'ckrun' in locals() and ckrun:
+                    print(f"異動 {choice} 記錄")
             elif choice == "3":
                 lib.select_books_all()
                 table_name = "books"
                 fun_json = "update_columns"
-                lib.data_update(table_name, config, fun_json)
+                ckrun = lib.data_update(table_name, config, fun_json)
+                if 'ckrun' in locals() and ckrun:
+                    print(f"異動 {choice} 記錄")
             elif choice == "4":
                 table_name = "books"
                 fun_json = "select_columns"
@@ -62,6 +67,6 @@ while attempts < max_attempts:
                 break
             else:
                 print("=>無效的選擇")
-                input("按任意鍵返回主選單...")  # 提示用戶按任意键返回主菜单
 
-            # lib.clear_screen()  # 清理屏幕
+            # lib.clear_screen()  # 清理屏幕（如果需要）
+        break

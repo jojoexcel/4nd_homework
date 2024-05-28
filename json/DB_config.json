@@ -47,29 +47,38 @@
             "create_table": "CREATE TABLE IF NOT EXISTS books (book_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, author TEXT NOT NULL, publisher TEXT NOT NULL, year INTEGER NOT NULL)",
             "columns_set": [
                 {
-                    "name": "book_id",
-                    "description": "書籍ID",
-                    "width": 4
-                },
-                {
                     "name": "title",
                     "description": "書名",
-                    "width": 12
+                    "why": "請輸入要新增的標題",
+                    "width": 12,
+                    "width2": 12
                 },
                 {
                     "name": "author",
                     "description": "作者",
-                    "width": 12
+                    "why": "請輸入要新增的作者",
+                    "width": 12,
+                    "width2": 12
                 },
                 {
                     "name": "publisher",
                     "description": "出版社",
-                    "width": 12
+                    "why": "請輸入要新增的出版社",
+                    "width": 18,
+                    "width2": 18
                 },
                 {
                     "name": "year",
                     "description": "年份",
-                    "width": 6
+                    "why": "請輸入要新增的年份",
+                    "width": 4,
+                    "width2": 6
+                },
+                {
+                    "name": "book_id",
+                    "description": "書籍ID",
+                    "width": 4,
+                    "width2": 4
                 }
             ],
             "select_columns": [
