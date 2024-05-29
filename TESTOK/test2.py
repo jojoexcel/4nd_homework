@@ -1,4 +1,4 @@
-import pack.modu as lib
+import pack.modu_第一版 as lib
 import os
 import sqlite3
 

@@ -2,7 +2,7 @@ import os
 import sqlite3
 import pandas as pd
 import json
-import pack.modu as lib
+import pack.modu_第一版 as lib
 # 需在外層才能作用
 DB_config_file = r'.\json\db_config.json'
 config = lib.config_load(DB_config_file)

@@ -1,0 +1,47 @@
+import json
+
+# 設定配置文件的路徑
+config_file = r'.\json\DB_config.json'
+
+# 打開並讀取配置文件內容，使用 utf-8 編碼
+with open(config_file, 'r', encoding='utf-8') as file:
+    config = json.load(file)
+
+# 打印配置文件的全部內容
+# print(config)
+
+# 指定要處理的資料表名稱
+table_name = "books"
+
+# 獲取資料庫名稱，默認為 "library.db"
+dp_name = config.get("dp_name", "library.db")
+
+# 獲取 "books" 資料表的配置
+# 使用 next 函數找到第一個匹配的表格配置，如果找不到則返回 None
+# table_config1 和 table_config2 是兩個不同的變數，通常用於自定義
+table_config1 = next((tab for tab in config["tables"] if tab["table_name"] == table_name), None)
+table_config2 = next((table for table in config["tables"] if table["table_name"] == table_name), None)
+
+# 如果未找到指定的資料表配置，則引發異常
+if not table_config2:
+    raise ValueError(f"表格 {table_name} 在配置文件中未找到")
+
+# 打印找到的資料表配置
+print(table_config2)
+
+# 獲取插入列的名稱列表  insert_columns
+columns = table_config2["select_where_columns"]
+
+# 獲取主鍵列的名稱列表，如果沒有主鍵則默認為空列表
+primary_key = table_config2.get("primary_key", [])
+
+# 生成用於 SQL 插入語句的佔位符字符串
+# 例如，如果有 3 個列，則生成的佔位符字符串為 "?, ?, ?"
+placeholders = ', '.join(['?'] * len(columns))
+print (placeholders)
+# 將列名列表轉換為逗號分隔的字符串
+# 例如，如果列名列表為 ["title", "author", "year"]，則生成的字符串為 "title, author, year"
+columns_str = ', '.join(columns)
+print (columns_str)
+columns_name_ch = [next(col["description"] for col in table_config2["columns_set"] if col["name"] == column) for column in columns]
+print (columns_name_ch)
