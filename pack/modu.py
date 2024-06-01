@@ -141,20 +141,23 @@ def delete_record():
     依書名刪除資料
     """
     title = input("請問要刪除哪一本書？：")
+    # assert title.strip(), "課程名稱不可空白."
+
     if title:
         try:
             with sqlite3.connect('library.db') as conn:
                 cursor = conn.cursor()
                 cursor.execute("DELETE FROM books WHERE title=?", (title,))
                 conn.commit()
+                if cursor.rowcount == 0:
+                    raise ValueError(f"找不到書名為 '{title}' 的書本.")
                 return True
         except sqlite3.Error as e:
              raise sqlite3.Error (f"給定的條件不足，無法進行刪除作業: {e}")
-        except Exception as e:
-            raise Exception(f"其他錯誤: {e}")
-    else:
-       raise ValueError (f"給定的條件不足，無法進行刪除作業")
 
+    else:
+
+       raise ValueError ("課程名稱不可空白.")
 def update_record():
     """
     依書名更新資料
@@ -231,7 +234,7 @@ def pad_to_width(word:str, width:int, )->str:
     half_width_count = len(re.findall(r'[\x00-\x7F]', s))  # 找出半形字的數量
     full_width_count = len(s) - half_width_count  # 找出全形字的數量
 
-    s_width = width -len(s)   # 計算無半型字串要補的的空白
+    s_width = width - full_width_count   # 計算無半型字串要補的的空白
     padding = width -full_width_count-(half_width_count//2) # 計算有半形的需要填充的空格數量
 
     if half_width_count  > 0:                    #如果有半形字
@@ -245,15 +248,16 @@ def pad_to_width(word:str, width:int, )->str:
 
 def print_date(data: dict):
     """輸出結果  進行補空白對齊"""
-    col_width=[10, 12, 18, 4] #這定欄寬
+    col_width=[10, 10, 18, 4] #這定欄寬
     header= ["書名", "作者", "出版社", "年份"]
     # print(f"|{'書名':{chr(12288)}^{col_width[0]}}|{'作者':{chr(12288)}^{col_width[1]}}|{'出版社':{chr(12288)}^{col_width[2]}}|{'年份':{chr(12288)}^{col_width[3]}}|")
     #改列表推導式
-    print_data=f"|"+"|".join(f'{col:{chr(12288)}^{width}}' for col, width in zip(header,col_width))+"|"
+    print_data=f"| "+" | ".join(f'{col:{chr(12288)}^{width}}' for col, width in zip(header,col_width))+" |"
     print(print_data)
 
 
     for row in data:
+
         # spvalue0 = pad_to_width(row[0],col_width[0])
         # spvalue1 = pad_to_width(row[1],col_width[1])
         # spvalue2 = pad_to_width(row[2],col_width[2])
