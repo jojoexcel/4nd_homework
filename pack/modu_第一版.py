@@ -347,7 +347,6 @@ def print_records(all_data, columns_name_tw, table_config, columns):
             else:
                 print("資料欄位數量與設定不符")
 
-
     else:
         print("無相符記錄")
 

@@ -26,22 +26,32 @@ def create_database():
                                     year INTEGER  NULL
                                 )''')
                 conn.commit()
-                datain()
-        except sqlite3.Error as e:
-            print(f"新增圖書資料時發生錯誤: {e}")
+                return True
+        except sqlite3.Error as es:
+        # 新增圖書資料時發生錯誤
+             raise sqlite3.Error(f"新增圖書資料時發生錯誤: {es}")
+        except Exception as e:
+            raise Exception(f"其他錯誤: {e}")
 
 def datain():
-    # 從檔案讀取並插入使用者資料
-    with open(r'.\csv\users.csv', 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-    users = [(row['username'], row['password']) for row in reader]
-    insert_users(users)
+    try:
+        # 從檔案讀取並插入使用者資料
+        with open(r'.\csv\users.csv', 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+        users = [(row['username'], row['password']) for row in reader]
+        insert_users(users)
+        # 從檔案讀取並插入圖書資料
+        with open(r'.\json\books.json', 'r', encoding='utf-8') as f:
+            books = json.load(f)
+        books = [(book['title'], book['author'], book['publisher'], book['year']) for book in books]
+        insert_books(books)
 
-    # 從檔案讀取並插入圖書資料
-    with open(r'.\json\books.json', 'r', encoding='utf-8') as f:
-        books = json.load(f)
-    books = [(book['title'], book['author'], book['publisher'], book['year']) for book in books]
-    insert_books(books)
+    except csv.Error as e:
+        raise csv.Error(f"讀取CSV發生錯誤: {e}")
+    except json.JSONDecodeError as e:
+        raise json.JSONDecodeError(f"讀取JSON發生錯誤: {e}")
+    except Exception as e:
+        raise Exception(f"其他錯誤: {e}")
 
 def insert_users(users:dict):
     """依user.csv新增資料"""
@@ -51,7 +61,9 @@ def insert_users(users:dict):
             cursor.executemany("INSERT INTO users (username, password) VALUES (?, ?)", users)
             conn.commit()
     except sqlite3.Error as e:
-        print(f"新增使用者資料時發生錯誤: {e}")
+        raise sqlite3.Error (f"新增使用者資料時發生錯誤: {e}")
+    except Exception as e:
+            raise Exception(f"其他錯誤: {e}")
 
 def insert_books(books:dict):
     """依books.json新增book資料"""
@@ -62,7 +74,10 @@ def insert_books(books:dict):
             conn.commit()
             return True
     except sqlite3.Error as e:
-        print(f"新增圖書資料時發生錯誤: {e}")
+        raise sqlite3.Error (f"新增圖書資料時發生錯誤: {e}")
+    except Exception as e:
+            raise Exception(f"其他錯誤: {e}")
+
 
 def login(username:str, password:str):
     """檢查LOGOIN資料正確否 傳回 user"""
@@ -73,7 +88,10 @@ def login(username:str, password:str):
             user = cursor.fetchone()
             return user
     except sqlite3.Error as e:
-        print(f"輸入資料不正確: {e}")
+        raise sqlite3.Error (f"輸入資料不正確: {e}")
+    except Exception as e:
+            raise Exception(f"其他錯誤: {e}")
+
 
 def show_menu():
     """選單目錄和並選擇
@@ -108,9 +126,15 @@ def add_record():
             if ck:
                 return True
         except ValueError as e:
-            print(f"年份必須是數字。{e}")
+             raise ValueError (f"年份必須是數字。{e}")
+        except Exception as e:
+            raise Exception(f"其他錯誤: {e}")
+
     else:
-        print("給定的條件不足，無法進行新增作業")
+        raise ValueError ("給定的條件不足，無法進行新增作業")
+
+
+
 
 def delete_record():
     """
@@ -125,9 +149,11 @@ def delete_record():
                 conn.commit()
                 return True
         except sqlite3.Error as e:
-            print(f"給定的條件不足，無法進行刪除作業: {e}")
+             raise sqlite3.Error (f"給定的條件不足，無法進行刪除作業: {e}")
+        except Exception as e:
+            raise Exception(f"其他錯誤: {e}")
     else:
-        print("給定的條件不足，無法進行刪除作業")
+       raise ValueError (f"給定的條件不足，無法進行刪除作業")
 
 def update_record():
     """
@@ -148,11 +174,18 @@ def update_record():
                 conn.commit()
                 return True
         except ValueError as ve:
-            print(f"年份必須是數字：{ve}")
+            raise ValueError (f"年份必須是數字。{ve}")
         except sqlite3.Error as se:
-            print(f"資料庫錯誤：{se}")
+            raise sqlite3.Error (f"資料庫錯誤：{se}")
+        except Exception as e:
+            raise Exception(f"其他錯誤: {e}")
     else:
-        print("給定的條件不足，無法進行修改作業")
+         raise ValueError ("給定的條件不足，無法進行修改作業")
+
+def error_print():
+    """
+    如果有錯時列印 錯誤資訊
+    """
 
 def search_record():
     """
@@ -166,8 +199,12 @@ def search_record():
                             WHERE title LIKE ? OR author LIKE ?''', ('%' + keyword + '%', '%' + keyword + '%'))
             results = cursor.fetchall()
             print_date(results)
-    except sqlite3.Error as e:
-        print(f"輸入資料不正確: {e}")
+    # except sqlite3.Error as e:
+    #     print(f"輸入資料不正確: {e}")
+    except sqlite3.Error as se:
+        raise sqlite3.Error (f"輸入資料不正確: {se}")
+    except Exception as e:
+        raise Exception(f"其他錯誤: {e}")
 
 
 def list_records():
@@ -178,11 +215,13 @@ def list_records():
             cursor.execute("SELECT title, author, publisher, year FROM books")
             results = cursor.fetchall()
             print_date(results)
-    except sqlite3.Error as e:
-       print(f"輸入資料不正確: {e}")
+    except sqlite3.Error as se:
+        raise sqlite3.Error (f"輸入資料不正確: {se}")
+    except Exception as e:
+        raise Exception(f"其他錯誤: {e}")
 
 
-def spv(width:int, word:str):
+def pad_to_width(word:str, width:int, )->str:
     """
     補字元使的 width 符合設定
     因半形字與全形字的不同寬
@@ -192,8 +231,8 @@ def spv(width:int, word:str):
     half_width_count = len(re.findall(r'[\x00-\x7F]', s))  # 找出半形字的數量
     full_width_count = len(s) - half_width_count  # 找出全形字的數量
 
-    s_width = width -len(s)   # 計算無判型字串要補的的空白
-    padding = width -full_width_count-(half_width_count//2) # 計算有半形全形的需要填充的空格數量
+    s_width = width -len(s)   # 計算無半型字串要補的的空白
+    padding = width -full_width_count-(half_width_count//2) # 計算有半形的需要填充的空格數量
 
     if half_width_count  > 0:                    #如果有半形字
         if half_width_count %2==0:                   #如果半形字為偶數
@@ -207,14 +246,22 @@ def spv(width:int, word:str):
 def print_date(data: dict):
     """輸出結果  進行補空白對齊"""
     col_width=[10, 12, 18, 4] #這定欄寬
-    print(f"|{'書名':{chr(12288)}^{col_width[0]}}|{'作者':{chr(12288)}^{col_width[1]}}|{'出版社':{chr(12288)}^{col_width[2]}}|{'年份':{chr(12288)}^{col_width[3]}}|")
+    header= ["書名", "作者", "出版社", "年份"]
+    # print(f"|{'書名':{chr(12288)}^{col_width[0]}}|{'作者':{chr(12288)}^{col_width[1]}}|{'出版社':{chr(12288)}^{col_width[2]}}|{'年份':{chr(12288)}^{col_width[3]}}|")
+    #改列表推導式
+    print_data=f"|"+"|".join(f'{col:{chr(12288)}^{width}}' for col, width in zip(header,col_width))+"|"
+    print(print_data)
+
+
     for row in data:
-        spvalue0 = spv(col_width[0], row[0])
-        spvalue1 = spv(col_width[1], row[1])
-        spvalue2 = spv(col_width[2], row[2])
-        spvalue3 = spv(col_width[3], row[3])
-        print(f"|{spvalue0}|{spvalue1}|{spvalue2}|{spvalue3}|")
-        # print(f"|{row[0]:{chr(12288)}<{spvalue0}}|{row[1]:{chr(12288)}<{spvalue1}}|{row[2]:{chr(12288)}<{spvalue2}}|{row[3]:{chr(12288)}<{spvalue3}}|")
+        # spvalue0 = pad_to_width(row[0],col_width[0])
+        # spvalue1 = pad_to_width(row[1],col_width[1])
+        # spvalue2 = pad_to_width(row[2],col_width[2])
+        # spvalue3 = pad_to_width(row[3],col_width[3])
+        # print(f"|{spvalue0}|{spvalue1}|{spvalue2}|{spvalue3}|")
+        print_data="| "+ " | ".join(pad_to_width(col, width) for col, width in zip(row, col_width))+ " |"
+        # formatted_row = "| " + " | ".join(pad_to_width(col, width) for col, width in zip(row, col_width)) + " |"
+        print(print_data)
 
 
 
